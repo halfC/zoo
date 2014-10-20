@@ -3,8 +3,8 @@ zoo
 
 Code garbage station
 
-´úÂë²Ö¿â 
+ä»£ç ä»“åº“ 
 
-Ôö¼ÓÊı×ÖÔËËãÑéÖ¤Âë  Digital operation verification code
+å¢åŠ æ•°å­—è¿ç®—éªŒè¯ç   Digital operation verification code
 
 some function and skill
