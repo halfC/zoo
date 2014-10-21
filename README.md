@@ -21,7 +21,8 @@ Save remote image
 the same qrcode different jump
 
 
-
+1021:
+swapping two variables
 
 
 
