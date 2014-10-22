@@ -24,6 +24,8 @@ the same qrcode different jump
 1021:
 swapping two variables
 
+1022:
+dynamic icon
 
 
 
