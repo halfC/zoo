@@ -25,7 +25,8 @@ the same qrcode different jump
 swapping two variables
 
 1022:
-dynamic icon
+dynamic icon 
+open bigger file
 
 
 
