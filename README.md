@@ -30,8 +30,13 @@ root:
 
 	open bigger file
 1027:
-       array_column php 5.5 the following
-
+	array_column php 5.5 the following
+	Bar code  verification 条形码验证码
+	check whois
+	color string
+	get guest info
+	js neon lamp 
+	lunar 农历时间处理函数
 </pre>
 
 some function and skill
