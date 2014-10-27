@@ -22,8 +22,6 @@ root:
 	Save remote image
 	the same qrcode different jump
 
-
-
 1021:
 	swapping two variables
 
@@ -31,6 +29,8 @@ root:
 	dynamic icon 
 
 	open bigger file
+1027:
+       array_column php 5.5 the following
 
 </pre>
 
