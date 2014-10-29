@@ -37,6 +37,16 @@ root:
 	get guest info
 	js neon lamp 
 	lunar 农历时间处理函数
+	中文数字转阿拉伯数字
+	阿拉伯数字转中文数字
+	check youku url
+1028:
+	get baidu real url
+	getnumarray 获取接近的数字
+	hander hander 汇总
+1029:
+
+
 </pre>
 
 some function and skill
