@@ -44,7 +44,9 @@ root:
 	get baidu real url
 	getnumarray 获取接近的数字
 	hander hander 汇总
-1029:
+12.01:  
+	find_in_catalog 在目录中指定的后缀文件中查找指定的字符串
+	simple_Crypt    简单的字符串加密，暂不支持中文
 
 
 </pre>
