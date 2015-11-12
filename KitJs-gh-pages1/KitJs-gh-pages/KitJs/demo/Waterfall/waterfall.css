@@ -1,0 +1,31 @@
+.kitjs-waterfall-container {
+	position: relative;
+	min-width: 692px;
+	margin: 0 auto;
+}
+.kitjs-waterfall-container  .kitjs-waterfall {
+	position: absolute;
+	width: 193px;
+	padding: 14px;
+	background-color: white;
+	overflow: hidden;
+	margin-bottom: 20px;
+}
+.kitjs-waterfall-container  .kitjs-waterfall .image {
+	position: relative;
+	display: block;
+	width: 190px;
+	overflow: hidden;
+	background-color: white;
+	border: 1px solid white;
+}
+.kitjs-waterfall-container  .kitjs-waterfall a {
+	text-decoration: none;
+	font-weight: bold;
+	color: #1389E5;
+	text-decoration: underline;
+	outline: none;
+}
+html {
+	background-color: #E8E7E3;
+}

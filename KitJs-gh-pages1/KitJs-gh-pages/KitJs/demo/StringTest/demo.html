@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+	<head>
+		<script src="../../src/js/kit.js"></script>
+		<script src="../../src/js/string.js"></script>
+	</head>
+	<body>
+		<script>
+			console.log($kit.str.camelize('margin-left'));
+			console.log($kit.str.capitalize('margin-left'));
+			console.log($kit.str.underscore('margin-left'));
+			console.log($kit.str.dasherize('margin_left'));
+			console.log('===============================');
+			'asd asd asd asd '.replace(/((as)\w )/g, function() {
+				console.log(arguments);
+			})
+			console.log('===============================');
+			console.log($kit.str.inspect('I\'m so happy.'));
+			console.log($kit.str.inspect('I\'m so happy.', true));
+
+		</script>
+	</body>
+</html>

@@ -48,7 +48,7 @@ root:
 	find_in_catalog 在目录中指定的后缀文件中查找指定的字符串
 	simple_Crypt    简单的字符串加密，暂不支持中文
 
-
+201511.12  KitJs-gh-pages1/KitJs-gh-pages/KitJs/demo/DatePicker/n-months.html 
 </pre>
 
 some function and skill
