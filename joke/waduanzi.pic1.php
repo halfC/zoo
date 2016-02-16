@@ -6,8 +6,8 @@ include_once('./config.php');
 include ('./snoopy.class.php');
 include ('./simple_html_dom.php');
 $ids = array();
-$table = 'jokes_ct_wdz';
-for ($i=1; $i < 3629; $i++) { //3629
+$table = 'jokes_ct_pic';
+for ($i=1; $i < 3; $i++) { //3629
 	$sourceURL = 'http://www.waduanzi.com/lengtu/page/'.$i;
 	$html =file_get_html($sourceURL);
 	for ($n=0; $n < 20; $n++) { 
@@ -29,7 +29,7 @@ for ($i=1; $i < 3629; $i++) { //3629
       //$_d ['local_pic'] = getImg($img->src,'','zdw');
       $_d['source_id'] = $id;
       $_d['source_name'] = $link->href;
-  		$_d ['local_pic'] =  savepic("zdwsd",$img->src,$id);
+  		$_d ['local_pic'] =  savepic("zdw1",$img->src,$id);
   		$imgInfo = (getimagesize($img->src));
   		$_d['pic'] =  ($img->src);
   		$_d['pic_m_w'] = $imgInfo[0];
@@ -37,6 +37,7 @@ for ($i=1; $i < 3629; $i++) { //3629
   		$r = $db->insert($table,$_d);
   		$sql = $db->getLastSql();
       saveSql($sql);
+      echo $sql."<br>";
       array_push($ids, $id);
     }
 		//echo $sql."<br/>";

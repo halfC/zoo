@@ -1,22 +1,30 @@
 <?php
+header("Content-type:text/html;charset=utf-8");
 error_reporting(1);
 ignore_user_abort(1);
 set_time_limit(0);
 include_once('./config.php');
 include ('./snoopy.class.php');
 include ('./simple_html_dom.php');
+$table = 'jokes_ct_5';
 $ids = array();
-$table = 'jokes_ct_wdz';
-for ($i=1; $i < 3629; $i++) { //3629
-	$sourceURL = 'http://www.waduanzi.com/lengtu/page/'.$i;
+for ($i=2; $i < 10000; $i++) { //3629
+	$sourceURL = "http://www.gaoxiaola.com/neihantu/index_".$i.".html";
 	$html =file_get_html($sourceURL);
-	for ($n=0; $n < 20; $n++) { 
-		$aa = $html->find('h2.item-title',$n)->innertext;
-		$img = $html->find('img.bmiddle',$n);
-    $link = $html->find('h2.item-title a',$n);
+	 //iconv('GB2312', 'UTF-8', $html); 
+	for ($n=0; $n < 40; $n++) { 
+    $title = $html->find('ul.list-pic2 li span',$n)->innertext;
+	  $title = iconv('GB2312', 'UTF-8', $title); 
+		$link = $html->find('a.picture',$n);
+    $id = number($link->href);
+    //print_r($link->href);
+		$img = $html->find('a.picture img',$n);
+
+    //$link = $html->find('h2.item-title a',$n);
+    //echo $link->href;exit();
 		$content = $html->find('div.item-content',$n)->innertext;
-		$_d['title'] =  strip_tags($aa);
-		$_d['content'] = $content;
+		$_d['title'] =  $_d['content']=  strip_tags($title);
+		//$_d['content'] = $content;
 		$ext=strtolower(substr($url,strrpos($img->src,'.')+1));
     //savepic("zdw",$img->src,$data['source_id']);
     if($ext == 'gif'){
@@ -24,29 +32,28 @@ for ($i=1; $i < 3629; $i++) { //3629
     }else{
       $_d['is_gif'] = 0;
     }
-    $id = number($link->href);
+    //$_d ['local_pic'] = getImg($img->src,'','zdw');
+    $_d['source_id'] = $id;
+    $_d['source_name'] = $link->href;
     if(!in_array($id,$ids)){
-      //$_d ['local_pic'] = getImg($img->src,'','zdw');
-      $_d['source_id'] = $id;
-      $_d['source_name'] = $link->href;
-  		$_d ['local_pic'] =  savepic("zdwsd",$img->src,$id);
+      array_push($ids, $id);
+  		$_d ['local_pic'] =  savepic("gxl1",$img->src,$id);
   		$imgInfo = (getimagesize($img->src));
   		$_d['pic'] =  ($img->src);
   		$_d['pic_m_w'] = $imgInfo[0];
   		$_d['pic_m_h'] = $imgInfo[1];
+      //print_r($_d);
   		$r = $db->insert($table,$_d);
   		$sql = $db->getLastSql();
       saveSql($sql);
-      array_push($ids, $id);
+  		//echo $sql."<br/>";
     }
-		//echo $sql."<br/>";
-    //print_r($ids);
 	}
 	
 	
 }
  function saveSql($sql){
-  file_put_contents('./data/sql_log_wdz.txt', $sql.";\n", FILE_APPEND);
+  file_put_contents('./data/sql_log_gxl.txt', $sql.";\n", FILE_APPEND);
  }
 //savepic("11",$data['pic'],$data['source_id']);
 function getLink($html){
