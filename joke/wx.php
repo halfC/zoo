@@ -1,7 +1,7 @@
 <?php 
 header("Content-type: text/html; charset=utf-8"); 
 /***
-  *  采集xxhh.com
+  *  采集微信号
   *
   * */
 ignore_user_abort(1);
@@ -15,41 +15,50 @@ $html = new simple_html_dom();
 
 $snoopy = new Snoopy();
 
-$type = 11;
+$type = 10;
 
 // $sourceURL = "http://www.3jy.com/tag/12/2.html";
 // $sourceURL = "http://weixin.sogou.com/pcindex/pc/pc_5/pc_5.html";
-$contentUrl = "http://weixin.sogou.com/pcindex/pc/pc_5/5.html";
+//$contentUrl = "http://weixin.sogou.com/pcindex/pc/pc_5/5.html";
 $sourceList = 'http://weixin.sogou.com/pcindex/pc/pc_'.$type.'/';
-// $contentUrl = "http://weixin.sogou.com/gzh?openid=oIWsFt9eVugAjPSViucxPUMqZRTc&ext=lA5I5al3X8BYrtW1H7KizeSlxz3j7jXNbhYq5hHUiK3kRa_38c2fM0YicIPGGskc";
+
+
+/**
+//==============测试获取微信基本信息
+
+$contentUrl = "http://weixin.sogou.com/gzh?openid=oIWsFt9eVugAjPSViucxPUMqZRTc&ext=lA5I5al3X8BYrtW1H7KizeSlxz3j7jXNbhYq5hHUiK3kRa_38c2fM0YicIPGGskc";
 
  //$snoopy->fetchlinks($contentUrl);
 // $snoopy->fetchtext($sourceURL);
 //$snoopy->fetch($contentUrl);
 //$return = $snoopy->results;
-// $html = file_get_html($contentUrl);
+$html = file_get_html($contentUrl);
 
 // //var_dump($html);
+$a = file_get_contents($contentUrl);
+echo $a;
+$logo = $html->find('div.img-box img',0);
+$wxName = $html->find('h3',0)->innertext;
+$wxID = $html->find('label[name=em_weixinhao]',0)->innertext;
+$sp = $html->find('span.sp-txt',0)->innertext;
+$auto = $html->find('span.sp-txt',1)->innertext;
+$qr_img = $html->find('div.v-box img',0);
 
-// $logo = $html->find('div.img-box img',0);
-// $wxName = $html->find('h3',0)->innertext;
-// $wxID = $html->find('label[name=em_weixinhao]',0)->innertext;
-// $sp = $html->find('span.sp-txt',0)->innertext;
-// $auto = $html->find('span.sp-txt',1)->innertext;
-// $qr_img = $html->find('div.v-box img',0);
 
 
+echo "logo:".$logo->src;
+echo "<br />";
+echo "wxname:".($wxName);
+echo "<br />";
+echo "wxID:".$wxID;
+echo "<br />";
+echo "descript:".$sp;
+echo "<br />";
+echo "auto:".$auto;
 
-// echo "logo:".$logo->src;
-// echo "<br />";
-// echo "wxname:".($wxName);
-// echo "<br />";
-// echo "wxID:".$wxID;
-// echo "<br />";
-// echo "descript:".$sp;
-// echo "<br />";
-// echo "auto:".$auto;
+exit();
 
+**/
 // echo "<br />";
 // echo "qr_path:".$qr_img->src;
 // echo "<br />";
@@ -80,7 +89,7 @@ $sourceList = 'http://weixin.sogou.com/pcindex/pc/pc_'.$type.'/';
 // 
 function xml_to_array( $xml ) 
 { 
-$reg = "/<(\w+)[^>]*>([\\x00-\\xFF]*)<\\/\\1>/"; 
+$reg = "/<([\w!]+)[^>]*>([\\x00-\\xFF]*)<\\/\\1>/"; 
 if(preg_match_all($reg, $xml, $matches)) 
 { 
 $count = count($matches[0]); 
@@ -98,21 +107,51 @@ $arr[$key] = $subxml;
 } 
 return $arr; 
 }   
-$urltest = 'http://weixin.sogou.com/gzhjs?openid=oIWsFtwDn59WGm87jyUwWequ1Qzg&ext=lA5I5al3X8BQD-Jx-wEt66ePM02mZzHmmua41EddmOJPqTlBm0Nmf7xM_jPIK-To';
-function saveArticle($url){
-	echo $url."<br>";
+//$urltest = 'http://weixin.sogou.com/gzhjs?openid=oIWsFtwDn59WGm87jyUwWequ1Qzg&ext=lA5I5al3X8BQD-Jx-wEt66ePM02mZzHmmua41EddmOJPqTlBm0Nmf7xM_jPIK-To';
+function saveArticle($url,$wxID,&$db){
+	//echo $url."<br>";
 	$content = file_get_contents($url);
-	echo $content;
+	var_dump($content);
 	$arr = json_decode($content,1);
-	print_r($arr);
+	if(!$arr){
+		return '';
+	}
 	foreach ($arr['items'] as $key => $value) {
 		 // print_r($value);
 		$art = xml_to_array($value);
-		print_r($art);
+		$listInfo = array();
+		//
+		$listInfo = $art_arr [] = $art['DOCUMENT'];
+
+		$_d = array();
+		$_d['wid'] = $wxID;
+		$_d['wx_name'] = trimTag($listInfo['sourcename']);
+		// $_d['aid'] = '';
+		$_d['pub_time'] = $listInfo['pagesize']['lastModified'];
+		$_d['url'] = trimTag($listInfo['url']);
+		$_d['content'] = '';
+		$_d['view'] = '';
+		$_d['tag'] = '';
+		$_d['class_id'] = $listInfo['docid']['classid'];
+		$_d['title'] = $listInfo['title'];
+		$_d['head_image'] = $listInfo['imglink'];
+		$_d['intro'] = $listInfo['content168'];
+		$_d['logo'] = $listInfo['headimage'];
+		$_d['openid'] = $listInfo['openid'];
+		$_d['ext'] = $listInfo['ext'];
+		$table = 'wx_article';
+		$db->insert($table,$_d);
+		echo $sql = $db->getLastSql();
+		echo "<br />";
+		saveSql($sql);
 	}
 }
-saveArticle($urltest);
-exit();
+function trimTag($str){
+	$arr = array('<![CDATA[',']]>');
+	return str_replace($arr, '', $str);
+}
+// saveArticle($urltest);
+// exit();
 
 for($i=2;$i<4;$i++){
 	$return = array();
@@ -126,33 +165,37 @@ for($i=2;$i<4;$i++){
 		if(checkUrl($value->href)){
 			//echo $value."<br />";
 			$wxIdArr[] = $value;
-			saveInfoWx($value->href,$type);
+			saveInfoWx($value->href,$type,$db);
 		}else{
 			//echo $i.":false url:".$value."<br />";
 		}
 	}
 	sleep(3);
 }
-
-function saveInfoWx($url,$type){
+//saveInfoWx('http://weixin.sogou.com/gzh?openid=oIWsFt3xCQPgywg2M8XwLqg9Q-Gg&ext=lA5I5al3X8BmTukCoE07jSYFtmu9Fii51vxry5GdRXza5fMN9eqMB_D6KwFVSSe5');
+function saveInfoWx($url,$type='',$d = ''){
 	echo $url."<br />";
 
 	$html = file_get_html($url);
-	$logo = $html->find('div.img-box img',0);
-	$wxName = $html->find('h3',0)->innertext;
-	$wxID = $html->find('label[name=em_weixinhao]',0)->innertext;
+	//echo $logo = $html->find('div.img-box img',0);
+	echo $wxName = $html->find('h3',0)->innertext;
+	//var_dump($wxName);
+	echo "<br>";
+	echo $wxID = $html->find('label[name=em_weixinhao]',0)->innertext;
+	//var_dump($wxName);
+	echo "<br>";
 	$sp = $html->find('span.sp-txt',0)->innertext;
 	$auto = $html->find('span.sp-txt',0)->innertext;
 	$qr_img = $html->find('div.v-box img',0);
 	//先保存到本地文件
 	//顺序微信id，微信昵称，logo，描述，认证单位，二维码
-	$str = $wxID.';'.$wxName.';'.$logo->src.';'.$sp.';'.$auto.';'.$qr_img->src;
+	$str = $wxID.';'.$wxName.';'.$sp.';'.$auto.';'.$qr_img->src;
 	//echo $str."<br />";
 	//saveInfoWx($str);
 	$savePath = 'data/weixin_'.$type.'.txt';
-	$article_url = str_replace('gzh?openid', 'gzhjs?openid', $url);
-	$article_link =  
-	
+	echo $article_url = str_replace('gzh?openid', 'gzhjs?openid', $url);
+	//$article_link =  
+	saveArticle($article_url,$wxID,$db);
 	file_put_contents('data/weixin_'.$type.'.txt', $str."\n",FILE_APPEND);
 }
 
@@ -161,7 +204,6 @@ function checkUrl($url){
 	 $part = explode('/', $url);
 	 $part1 = explode('.', $url);
 	if( strpos($url, 'gzh?openid')&& (strlen($url) < 200)){
-		
 		return true;
 	}else{
 		return false;
@@ -180,3 +222,4 @@ function number($str)
 
 
  ?>
+

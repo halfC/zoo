@@ -41,6 +41,9 @@
  * All of the Defines for the classes below.
  * @author S.C. Chen <me578022@gmail.com>
  */
+ini_set('user_agent','Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; GreenBrowser)');
+//ini_set('user_agent','Sosospider+(+http://help.soso.com/webspider.htm)');
+
 define('HDOM_TYPE_ELEMENT', 1);
 define('HDOM_TYPE_COMMENT', 2);
 define('HDOM_TYPE_TEXT',    3);
@@ -73,7 +76,8 @@ function file_get_html($url, $use_include_path = false, $context=null, $offset =
     // We DO force the tags to be terminated.
     $dom = new simple_html_dom(null, $lowercase, $forceTagsClosed, $target_charset, $stripRN, $defaultBRText, $defaultSpanText);
     // For sourceforge users: uncomment the next line and comment the retreive_url_contents line 2 lines down if it is not already done.
-    $contents = file_get_contents($url, $use_include_path, $context, $offset);
+    //$contents = file_get_contents($url, $use_include_path, $context, $offset);
+	$contents = getC($url);
     // Paperg - use our own mechanism for getting the contents as we want to control the timeout.
     //$contents = retrieve_url_contents($url);
     if (empty($contents) || strlen($contents) > MAX_FILE_SIZE)
@@ -83,6 +87,30 @@ function file_get_html($url, $use_include_path = false, $context=null, $offset =
     // The second parameter can force the selectors to all be lowercase.
     $dom->load($contents, $lowercase, $stripRN);
     return $dom;
+}
+function getC($url){
+	
+	$ip = "110.73.1.250:8123";
+	//echo $ip = getIp();
+	$ch = curl_init($url);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_PROXY, $ip);
+	//curl_setopt($ch, CURLOPT_TIMEOUT,5); 
+
+	//curl_setopt($ch, TIME_OUT, 5);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	$output = curl_exec($ch);
+	curl_close();
+	return $output;
+
+}
+function getIp(){
+	$url = 'http://10.10.0.18/proxy.dat';
+	$ipD = file_get_contents($url);
+	$arr = explode("\n",$ipD);
+	$r = array_rand($arr);
+	return $arr[$r];
 }
 // get html dom from string
 function str_get_html($str, $lowercase=true, $forceTagsClosed=true, $target_charset = DEFAULT_TARGET_CHARSET, $stripRN=true, $defaultBRText=DEFAULT_BR_TEXT, $defaultSpanText=DEFAULT_SPAN_TEXT)
