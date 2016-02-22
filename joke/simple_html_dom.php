@@ -73,14 +73,37 @@ if (!defined('MAX_FILE_SIZE')) {
 // $maxlen is defined in the code as PHP_STREAM_COPY_ALL which is defined as -1.
 function file_get_html($url, $use_include_path = false, $context=null, $offset = -1, $maxLen=-1, $lowercase = true, $forceTagsClosed=true, $target_charset = DEFAULT_TARGET_CHARSET, $stripRN=true, $defaultBRText=DEFAULT_BR_TEXT, $defaultSpanText=DEFAULT_SPAN_TEXT)
 {
+	if(!$url){
+		return false;
+	}
+    // We DO force the tags to be terminated.
+    $dom = new simple_html_dom(null, $lowercase, $forceTagsClosed, $target_charset, $stripRN, $defaultBRText, $defaultSpanText);
+    // For sourceforge users: uncomment the next line and comment the retreive_url_contents line 2 lines down if it is not already done.
+    $contents = file_get_contents($url, $use_include_path, $context, $offset);
+	//$contents = getC($url);
+	//var_dump($contents);
+    // Paperg - use our own mechanism for getting the contents as we want to control the timeout.
+    //$contents = retrieve_url_contents($url);
+	//var_dump($contents);
+    if ( empty($contents) || strlen($contents) > MAX_FILE_SIZE || $contents == false)
+    {
+        return false;
+    }
+    // The second parameter can force the selectors to all be lowercase.
+    $dom->load($contents, $lowercase, $stripRN);
+    return $dom;
+}
+function file_get_html_c($url, $use_include_path = false, $context=null, $offset = -1, $maxLen=-1, $lowercase = true, $forceTagsClosed=true, $target_charset = DEFAULT_TARGET_CHARSET, $stripRN=true, $defaultBRText=DEFAULT_BR_TEXT, $defaultSpanText=DEFAULT_SPAN_TEXT)
+{
     // We DO force the tags to be terminated.
     $dom = new simple_html_dom(null, $lowercase, $forceTagsClosed, $target_charset, $stripRN, $defaultBRText, $defaultSpanText);
     // For sourceforge users: uncomment the next line and comment the retreive_url_contents line 2 lines down if it is not already done.
     //$contents = file_get_contents($url, $use_include_path, $context, $offset);
 	$contents = getC($url);
+	//var_dump($contents);
     // Paperg - use our own mechanism for getting the contents as we want to control the timeout.
     //$contents = retrieve_url_contents($url);
-    if (empty($contents) || strlen($contents) > MAX_FILE_SIZE)
+    if ( empty($contents) || strlen($contents) > MAX_FILE_SIZE || $contents == false)
     {
         return false;
     }
@@ -93,15 +116,18 @@ function getC($url){
 	$ip = "110.73.1.250:8123";
 	//echo $ip = getIp();
 	$ch = curl_init($url);
+	$cookie_file = tempnam('./temp','cookie');  
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_PROXY, $ip);
 	//curl_setopt($ch, CURLOPT_TIMEOUT,5); 
-
+	//curl_setopt ($ch, CURLOPT_COOKIEFILE, 'ABTEST=7|1455790190|v1; IPLOC=CN1101; SUID=879AF3726F1C920A0000000056C5986E; SUID=879AF3724FC80D0A0000000056C5986E; SUV=0056783872F39A8756C5986E6B871180; weixinIndexVisited=1\r\n');
+	curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_file);  
 	//curl_setopt($ch, TIME_OUT, 5);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	$output = curl_exec($ch);
-	curl_close();
+	//var_dump($output);
+	curl_close($ch);
 	return $output;
 
 }

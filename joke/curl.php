@@ -1,5 +1,5 @@
 <?php
-
+header('Content-type: text/html;charset=UTF-8');
 $contentUrl = "http://weixin.sogou.com/gzh?openid=oIWsFt9eVugAjPSViucxPUMqZRTc&ext=lA5I5al3X8BYrtW1H7KizeSlxz3j7jXNbhYq5hHUiK3kRa_38c2fM0YicIPGGskc";
 
 //$c = get_curlcuconent2($contentUrl,'weixin.sogou.com');
@@ -123,16 +123,97 @@ for($page = 1; $page <= 10; $page++)
 //关闭对数据库的连接
  // mysql_close($myconn);
 **/
+$agent_arr = array('User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 MicroMessenger/6.5.2.501 NetType/WIFI WindowsWechat',
+					'User-Agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36',
+					'Sosospider+(+http://help.soso.com/webspider.htm)',
+					'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
+					'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Win64; x64; Trident/4.0)',
+					'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6',
+					'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
+					'Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3',
+					'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0'
+					);
 
+
+ini_set('user_agent',$agent_arr[array_rand($agent_arr)]);
+//ini_set('user_agent','Sosospider+(+http://help.soso.com/webspider.htm)');
+
+$contentUrl = "http://weixin.sogou.com/gzh?openid=oIWsFt3ZFu_NDjJrAqjXu2_NXnt8&ext=bC4jy94pB0T2a5IHjVQ2OfL_9GAuXxDUsCelwLQf8uSULgJ_FNDyAgQiYfRM0yoC";
+
+//$contentUrl = 'http://weixin.sogou.com/';
 
 $ip = "110.73.1.250:8123";
+$header[] = 'Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8';
+$header[] = 'Accept-Encoding:gzip, deflate, sdch';
+$header[] = 'Accept-Language:zh-CN,zh;q=0.8';
+$header[] = 'Cache-Control:no-cache';
+$header[] = 'Connection:keep-alive';
+$header[] = 'Cookie:SUID=F3A6C16F7F23900A000000005640074A; SUV=1447036750683881; CXID=3743134985C01FF35F91B0483F17CEB8; pgv_pvi=7629323264; ABTEST=0|1455591066|v1; weixinIndexVisited=1; SNUID=13BDD550222409FB46EC3E2A221D5AB6; IPLOC=CN1101';
+$header[] = 'Host:weixin.sogou.com';
+$header[] = 'Pragma:no-cache';
+$header[] = 'Upgrade-Insecure-Requests:1';
+$header[] = 'User-Agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36';
+
+/**
+
+
+
+Cache-Control:no-cache
+
+Host:weixin.sogou.com
+Pragma:no-cache
+Upgrade-Insecure-Requests:1
+User-Agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36
+
+
+
+Accept-Encoding:gzip, deflate, sdch
+
+
+
+Cookie:SUV=00F36E2172F4980456A83B8A59F4E681; ABTEST=0|1455606086|v1; SUID=329FF4721E10930A0000000056C2C946; SUID=329FF4722E08990A0000000056C2C946; weixinIndexVisited=1; PHPSESSID=k0crrbb2ffutfs6inca4rtf2p3; SUIR=1455608302; SNUID=A9046FE99B9EB044A3967AE19B2AFEFA; sct=2; IPLOC=CN1101
+Host:weixin.sogou.com
+Referer:http://weixin.sogou.com/
+Upgrade-Insecure-Requests:1
+User-Agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36
+
+**/
+echo $ip = getIp();
+$ip = '110.73.7.221';
+$header1[] = 'Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8';
+$header1[] = 'Accept-Encoding:gzip, deflate, sdch';
+$header1[] = 'Accept-Language:zh-CN,zh;q=0.8,en;q=0.6';
+$header1[] = 'Cache-Control:max-age=0';
+$header1[] = 'Connection:keep-alive';
+$header1[] = 'Host:weixin.sogou.com';
+$header1[] = 'Upgrade-Insecure-Requests:1';
+$header1[] = 'User-Agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36';
+$header1[] = 'X-FORWARDED-FOR:'.$ip.'CLIENT-IP:'.$ip;
+//$ips = get_client_ip();
+echo $agents = $agent_arr[array_rand($agent_arr)];
 $ch = curl_init($contentUrl);
+$cookie_jar = tempnam('./tmp','JSESSIONID');  
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_PROXY, $ip);
+//curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-FORWARDED-FOR:'.$ips, 'CLIENT-IP:'.$ips));
+curl_setopt($ch, CURLOPT_USERAGENT, $agents);
+//curl_setopt($ch, CURLOPT_PROXY, $ip);
+curl_setopt($ch, CURLOPT_REFERER, 'http://weixin.sogou.com/'); // 看这里，你也可以说你从google来  
+curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie_jar);
+curl_setopt($ch, CURLOPT_COOKIE,'Cookie:SUV=00F36E2172F4980456A83B8A59F4E681; ABTEST=0|1455606086|v1; SUID=329FF4721E10930A0000000056C2C946; SUID=329FF4722E08990A0000000056C2C946; weixinIndexVisited=1; PHPSESSID=k0crrbb2ffutfs6inca4rtf2p3; SUIR=1455608302; SNUID=A9046FE99B9EB044A3967AE19B2AFEFA; sct=2; IPLOC=CN1101');
+curl_setopt($ch, CURLOPT_HTTPHEADER, $header1); 
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $output = curl_exec($ch);
 echo ($output);
 
+function getIp(){
+	$url = 'http://10.10.0.18/proxy_healthip';
+	$ipD = file_get_contents($url);
+	$arr = explode("\n",$ipD);
+	$r = array_rand($arr);
+	return $arr[$r];
+}
 
-?>  
+
+
+echo file_get_contents($contentUrl);
