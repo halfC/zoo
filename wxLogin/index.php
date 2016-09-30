@@ -95,8 +95,8 @@ if($userInfo['BaseResponse']['Ret'] == 1101){
 }
 
 $userName = $userInfo['User']['UserName'];
-//echo "print ContactList info : \n";
-//print_r($userInfo['ContactList']);
+echo "print ContactList info : \n";
+print_r($userInfo['ContactList']);
 if(count($userInfo['ContactList']) > 0){
 	$i = 0;
 	foreach ($userInfo['ContactList'] as $key => $value) {
@@ -182,19 +182,6 @@ function sendMsgText($ToUserName,$msgContent){
 	global  $uin,$sid,$skey,$deviceId,$userName,$pass_ticket,$step2PostData,$snoopy,$_userInfo;
 	$sendMsgUrl = 'https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg?lang=zh_CN&pass_ticket='.$pass_ticket;//sid='.$sid.'&r='.getTime()
 	//echo "send msg Url :".$sendMsgUrl."\n";
-	$msgContent = strip_tags($msgContent);
-
-	if(strpos($msgContent, '@') !== false && strpos($msgContent, ':')){
-		$arr = explode(':', $msgContent);
-		$toMsg = htmlspecialchars_decode($arr[1]);
-		$reMsg = tulingReply($toMsg,$ToUserName);
-		record($_userInfo[$ToUserName].'|'.$_userInfo[$arr[0]].'|'.$toMsg.'|'.$reMsg);
-		if($reMsg ==''){
-			return false;
-		}
-		//$msgContent = $_userInfo[$ToUserName].':'.$_userInfo[$arr[0]].':'.$reMsg;
-		$msgContent = $reMsg;
-	}
 	$msgId = getMsgId();
 	$msg['Type'] = 1;
 	$msg['Content'] = $msgContent;
@@ -208,7 +195,40 @@ function sendMsgText($ToUserName,$msgContent){
 	//print_r($sendData);
 	$snoopy->submit($sendMsgUrl,json_encode($sendData,JSON_UNESCAPED_UNICODE));
 	echo "send msg results: \n ".$snoopy->results."\n";
+}
 
+function getReply($msgContent){
+	$msgContent = strip_tags($msgContent);
+
+	if(strpos($msgContent, '@') !== false && strpos($msgContent, ':')){
+		$arr = explode(':', $msgContent);
+		$toMsg = htmlspecialchars_decode($arr[1]);
+		$reMsg = tulingReply($toMsg,$ToUserName);
+		record($_userInfo[$ToUserName].'|'.$_userInfo[$arr[0]].'|'.$toMsg.'|'.$reMsg);
+		
+		//$msgContent = $_userInfo[$ToUserName].':'.$_userInfo[$arr[0]].':'.$reMsg;
+		return $reMsg;
+	}elseif(){
+
+	}else{
+		return  tulingReply($msgContent,$ToUserName);
+	}
+	// 若不符合触发条件或无内容返回时
+	if($reMsg == ''){
+		return false;
+	}
+}
+
+function xiaobingReply($msg){
+	global $_userInfo,$syncUrl,$syncPostData,$snoopy;
+	$bingKey = array_search("小冰", $_userInfo);
+	sendMsgText($bingKey,$msg);
+	// 获取 消息
+	$newMsg = $snoopy->submit($syncUrl,json_encode($syncPostData));
+	$syncResultData = json_decode($newMsg->results,1);
+	if($data['AddMsgCount'] > 0){
+		
+	}
 }
 /**
  * 回复 图片 信息  还未成功 
@@ -241,12 +261,16 @@ function responsData($data){
 				if($value['ImgHeight'] > 0){
 					sendMsgImg($value['FromUserName'] , $value['MsgId']);
 				}else{
-					sendMsgText($value['FromUserName'] , $value['Content']);
+					$reply = getReply($value['Content']);
+					if($reply){
+						sendMsgText($value['FromUserName'] , $reply);
+					}
 				}
 			}
 		}
 	}
 }
+
 
 
 
@@ -396,3 +420,4 @@ function record($msg){
 	$fileName = './Log/r_'.date('Y-m-d').'.log';
 	file_put_contents($fileName, $msg."\n",FILE_APPEND);
 }
+
