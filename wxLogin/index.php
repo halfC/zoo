@@ -95,8 +95,8 @@ if($userInfo['BaseResponse']['Ret'] == 1101){
 }
 
 $userName = $userInfo['User']['UserName'];
-echo "print ContactList info : \n";
-print_r($userInfo['ContactList']);
+// echo "print ContactList info : \n";
+// print_r($userInfo['ContactList']);
 if(count($userInfo['ContactList']) > 0){
 	$i = 0;
 	foreach ($userInfo['ContactList'] as $key => $value) {
@@ -181,7 +181,7 @@ while (1) {
 function sendMsgText($ToUserName,$msgContent){
 	global  $uin,$sid,$skey,$deviceId,$userName,$pass_ticket,$step2PostData,$snoopy,$_userInfo;
 	$sendMsgUrl = 'https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg?lang=zh_CN&pass_ticket='.$pass_ticket;//sid='.$sid.'&r='.getTime()
-	//echo "send msg Url :".$sendMsgUrl."\n";
+	echo "send msg Data :".$ToUserName." -> $msgContent \n";
 	$msgId = getMsgId();
 	$msg['Type'] = 1;
 	$msg['Content'] = $msgContent;
@@ -197,7 +197,8 @@ function sendMsgText($ToUserName,$msgContent){
 	echo "send msg results: \n ".$snoopy->results."\n";
 }
 
-function getReply($msgContent){
+function getReply($msgContent,$ToUserName){
+	global  $_userInfo;
 	$msgContent = strip_tags($msgContent);
 
 	if(strpos($msgContent, '@') !== false && strpos($msgContent, ':')){
@@ -208,26 +209,29 @@ function getReply($msgContent){
 		
 		//$msgContent = $_userInfo[$ToUserName].':'.$_userInfo[$arr[0]].':'.$reMsg;
 		return $reMsg;
-	}elseif(){
-
+	}elseif($msgContent[0] == 'X' || $msgContent[0] == '~'){
+		return xiaobingReply($msgContent);
 	}else{
 		return  tulingReply($msgContent,$ToUserName);
 	}
-	// 若不符合触发条件或无内容返回时
-	if($reMsg == ''){
-		return false;
-	}
+	return false;
 }
 
 function xiaobingReply($msg){
 	global $_userInfo,$syncUrl,$syncPostData,$snoopy;
 	$bingKey = array_search("小冰", $_userInfo);
-	sendMsgText($bingKey,$msg);
+	$arr = explode(':', $msg);
+		$toMsg = htmlspecialchars_decode($arr[1]);
+	sendMsgText($bingKey,ltrim($toMsg,'X'));
+	sleep(1);
 	// 获取 消息
 	$newMsg = $snoopy->submit($syncUrl,json_encode($syncPostData));
 	$syncResultData = json_decode($newMsg->results,1);
-	if($data['AddMsgCount'] > 0){
-		
+	if($syncResultData['AddMsgCount'] > 0){
+		echo "echo xiaoBing reply:".$syncResultData['AddMsgList'][0]['Content']."\n";
+		echo "print syncResultData \n";
+		print_r($syncResultData);
+		return $syncResultData['AddMsgList'][1]['Content'];
 	}
 }
 /**
@@ -261,7 +265,8 @@ function responsData($data){
 				if($value['ImgHeight'] > 0){
 					sendMsgImg($value['FromUserName'] , $value['MsgId']);
 				}else{
-					$reply = getReply($value['Content']);
+					$reply = getReply($value['Content'],$value['FromUserName']);
+					echo "print reply : ".$value['FromUserName'].'===='.$reply ."\n";
 					if($reply){
 						sendMsgText($value['FromUserName'] , $reply);
 					}
@@ -376,6 +381,9 @@ function getMsgId(){
 function tulingReply($msg,$ToUserName){
 	global $snoopy;
 	$start = substr($msg,0,1);
+	if($start == '~'){
+		return xiaobingReply($msg);
+	}
 	if($start != '#'){
 		return false;
 	}
