@@ -14,21 +14,6 @@
  *
  *
  *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
  * 
  */
 include './Snoopy.class.php';
@@ -95,6 +80,8 @@ if($userInfo['BaseResponse']['Ret'] == 1101){
 }
 
 $userName = $userInfo['User']['UserName'];
+$nickName = $userInfo['User']['NickName'];
+print_r($userInfo['User']);
 // echo "print ContactList info : \n";
 // print_r($userInfo['ContactList']);
 if(count($userInfo['ContactList']) > 0){
@@ -126,7 +113,7 @@ if($userInfo['Count']  == 0){
 }
 # 获取联系人  flase
 //get contact
-$contactUrl = 'https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetcontact?pass_ticket='.$pass_ticket.'&r='.getTime().'&skey='.$skey;
+$contactUrl = 'https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetcontact?pass_ticket='.$pass_ticket.'&r='.getTime().'&skey='.$skey;123
 $snoopy->fetch($contactUrl);
 print_r($snoopy->results);
 // echo  "\n";
@@ -167,6 +154,7 @@ while (1) {
 	if($syncResultData['SyncCheckKey']){
 		$syncPostData['SyncKey']['Count'] = $syncResultData['SyncCheckKey']['Count'];
 		$syncPostData['SyncKey']['List'] = $syncResultData['SyncCheckKey']['List'];
+		$syncPostData['rr'] = ~ time();
 	}
 	// 每3秒 请求一次
 	sleep(3);
@@ -181,7 +169,7 @@ while (1) {
 function sendMsgText($ToUserName,$msgContent){
 	global  $uin,$sid,$skey,$deviceId,$userName,$pass_ticket,$step2PostData,$snoopy,$_userInfo;
 	$sendMsgUrl = 'https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg?lang=zh_CN&pass_ticket='.$pass_ticket;//sid='.$sid.'&r='.getTime()
-	echo "send msg Data :".$ToUserName." -> $msgContent \n";
+	//echo "send msg Data :".$ToUserName." -> $msgContent \n";
 	$msgId = getMsgId();
 	$msg['Type'] = 1;
 	$msg['Content'] = $msgContent;
@@ -194,24 +182,40 @@ function sendMsgText($ToUserName,$msgContent){
 	$sendData['Scene'] = 0;
 	//print_r($sendData);
 	$snoopy->submit($sendMsgUrl,json_encode($sendData,JSON_UNESCAPED_UNICODE));
-	echo "send msg results: \n ".$snoopy->results."\n";
+	//echo "send msg results: \n ".$snoopy->results."\n";
 }
 
 function getReply($msgContent,$ToUserName){
-	global  $_userInfo;
+	global  $_userInfo,$nickName,$userName;
 	$msgContent = strip_tags($msgContent);
 
 	if(strpos($msgContent, '@') !== false && strpos($msgContent, ':')){
 		$arr = explode(':', $msgContent);
-		$toMsg = htmlspecialchars_decode($arr[1]);
-		$reMsg = tulingReply($toMsg,$ToUserName);
-		record($_userInfo[$ToUserName].'|'.$_userInfo[$arr[0]].'|'.$toMsg.'|'.$reMsg);
-		
+		$fromMsg = htmlspecialchars_decode($arr[1]);
+		$reMsg = '';
+		// 群聊 以 @ 形式回复
+		if(strpos($fromMsg, '@') !== false ){
+			$_tArr = explode(" ", $fromMsg);
+			//echo "echo _ukey \n";
+			$_ukey = array_search(trim($_tArr[0],'@'), $_userInfo);
+			//print_r($_ukey);
+			//echo "\n";
+			if(($_ukey = array_search(trim($_tArr[0],'@'), $_userInfo)) && $_ukey == $userName){
+				//echo "tuling reply call : \n";
+				//$reMsg = tulingReply($_tArr[1],$ToUserName);
+				//return $reMsg;
+			}
+		}
+		// 时间 | 群名称 | 昵称 | 内容 
+		record(date('Y-m-d H:i:s',time()).'|'.$_userInfo[$ToUserName].'|'.$_userInfo[$arr[0]].'|'.strip_tags($fromMsg).'|'.$reMsg);
+
+		return false;
 		//$msgContent = $_userInfo[$ToUserName].':'.$_userInfo[$arr[0]].':'.$reMsg;
-		return $reMsg;
+		//return $reMsg;
 	}elseif($msgContent[0] == 'X' || $msgContent[0] == '~'){
 		return xiaobingReply($msgContent);
 	}else{
+		//return false;
 		return  tulingReply($msgContent,$ToUserName);
 	}
 	return false;
@@ -220,6 +224,8 @@ function getReply($msgContent,$ToUserName){
 function xiaobingReply($msg){
 	global $_userInfo,$syncUrl,$syncPostData,$snoopy;
 	$bingKey = array_search("小冰", $_userInfo);
+	//echo 'print user info array'."\n";
+	//print_r($_userInfo);
 	$arr = explode(':', $msg);
 		$toMsg = htmlspecialchars_decode($arr[1]);
 	sendMsgText($bingKey,ltrim($toMsg,'X'));
@@ -228,9 +234,9 @@ function xiaobingReply($msg){
 	$newMsg = $snoopy->submit($syncUrl,json_encode($syncPostData));
 	$syncResultData = json_decode($newMsg->results,1);
 	if($syncResultData['AddMsgCount'] > 0){
-		echo "echo xiaoBing reply:".$syncResultData['AddMsgList'][0]['Content']."\n";
-		echo "print syncResultData \n";
-		print_r($syncResultData);
+		//echo "echo xiaoBing reply:".$syncResultData['AddMsgList'][0]['Content']."\n";
+		//echo "print syncResultData \n";
+		//print_r($syncResultData);
 		return $syncResultData['AddMsgList'][1]['Content'];
 	}
 }
@@ -266,8 +272,9 @@ function responsData($data){
 					sendMsgImg($value['FromUserName'] , $value['MsgId']);
 				}else{
 					$reply = getReply($value['Content'],$value['FromUserName']);
-					echo "print reply : ".$value['FromUserName'].'===='.$reply ."\n";
+					// echo "print reply : ".$value['FromUserName'].'===='.$reply ."\n";
 					if($reply){
+						//暂时关闭回复功能，只记录聊天记录
 						sendMsgText($value['FromUserName'] , $reply);
 					}
 				}
@@ -286,6 +293,9 @@ function responsData($data){
  * @return []    无返回
  */
 function waitLogin($uuid,&$rUrl){
+	if($rUrl != ''){
+		return true;
+	}
 	$time = ~getTime();
 	$url = 'https://login.weixin.qq.com/cgi-bin/mmwebwx-bin/login?uuid='.$uuid.'&r='.$time.'&tip=1&_='.$time;
 	$_r = file_get_contents($url);
@@ -380,12 +390,13 @@ function getMsgId(){
  */
 function tulingReply($msg,$ToUserName){
 	global $snoopy;
+	echo "tuling reply : \n";
 	$start = substr($msg,0,1);
 	if($start == '~'){
 		return xiaobingReply($msg);
 	}
 	if($start != '#'){
-		return false;
+		//return false;
 	}
 	$url = 'https://www.tuling123.com/openapi/api';
 	$data['key'] = '100b0df5eac743d8b3abc19bc11220f8';
